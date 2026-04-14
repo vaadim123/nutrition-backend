@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>їж.</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: Georgia, serif; background: #0e0e10; color: #f0ece4; max-width: 480px; margin: 0 auto; min-height: 100vh; }
+
+.header { padding: 24px 20px 0; border-bottom: 1px solid #2a2a2e; }
+.logo { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.logo-main { font-size: 26px; font-weight: 700; letter-spacing: -1px; }
+.logo-sub { font-size: 12px; color: #666; font-style: italic; }
+.summary { display: flex; align-items: center; gap: 16px; padding: 12px 0; }
+.ring-wrap { position: relative; width: 68px; height: 68px; flex-shrink: 0; }
+.ring-wrap svg { transform: rotate(-90deg); }
+.ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+.kcal-main { font-size: 20px; font-weight: 700; line-height: 1; }
+.kcal-sub { font-size: 12px; color: #888; margin-top: 3px; }
+.macros { display: flex; gap: 14px; margin-top: 8px; }
+.macro-lbl { font-size: 9px; color: #555; }
+.macro-val { font-size: 12px; font-weight: 600; }
+.tabs { display: flex; }
+.tab { flex: 1; padding: 10px; border: none; background: transparent; font-size: 13px; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; color: #555; }
+.tab.active { color: #c8f564; border-bottom-color: #c8f564; font-weight: 700; }
+
+.content { padding: 18px 20px 120px; }
+.section-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+
+.img-preview { position: relative; margin-bottom: 12px; }
+.img-preview img { width: 100%; border-radius: 12px; max-height: 220px; object-fit: cover; display: block; }
+.img-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.75); border: none; color: #fff; border-radius: 50%; width: 32px; height: 32px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+textarea { width: 100%; min-height: 90px; background: #1a1a1e; border: 1px solid #2a2a2e; border-radius: 12px; color: #f0ece4; padding: 12px; font-size: 14px; resize: none; outline: none; font-family: inherit; line-height: 1.6; }
+textarea::placeholder { color: #444; }
+
+.btn-row { display: flex; gap: 8px; margin-top: 8px; }
+.btn { padding: 14px 10px; border-radius: 10px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s; }
+.btn:active { opacity: 0.8; }
+.btn-photo { flex: 1; background: #1a1a1e; border: 1px solid #2a2a2e; color: #888; }
+.btn-photo.has-img { color: #c8f564; border-color: #c8f564; }
+.btn-analyze { flex: 2; background: #c8f564; color: #0e0e10; }
+.btn-analyze:disabled { background: #2a2a2e; color: #555; }
+
+.error-box { margin-top: 10px; color: #e05a4e; font-size: 12px; background: #1a1a1e; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(224,90,78,0.3); line-height: 1.5; word-break: break-word; }
+
+.hints { margin-top: 20px; }
+.hint-btn { display: block; width: 100%; text-align: left; background: #1a1a1e; border: 1px solid #2a2a2e; border-radius: 8px; color: #666; padding: 10px 12px; font-size: 13px; cursor: pointer; margin-bottom: 8px; font-family: inherit; }
+
+.empty { text-align: center; padding: 60px 0; }
+.empty-cta { background: none; border: none; color: #c8f564; cursor: pointer; font-size: 14px; font-family: inherit; text-decoration: underline; margin-top: 8px; display: block; margin-left: auto; margin-right: auto; }
+
+.meal-card { background: #1a1a1e; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid #2a2a2e; position: relative; }
+.meal-remove { position: absolute; top: 10px; right: 12px; background: transparent; border: none; color: #444; cursor: pointer; font-size: 22px; line-height: 1; padding: 4px; }
+.meal-macros { display: flex; gap: 6px; }
+.macro-box { background: #0e0e10; border-radius: 8px; padding: 6px 8px; text-align: center; flex: 1; }
+.macro-box-val { font-size: 13px; font-weight: 700; }
+.macro-box-lbl { font-size: 9px; color: #555; }
+.meal-tip { font-size: 11px; color: #666; font-style: italic; border-top: 1px solid #2a2a2e; padding-top: 8px; margin-top: 8px; line-height: 1.5; }
+
+.balance-card { background: #1a1a1e; border-radius: 14px; padding: 16px; margin-top: 8px; border: 1px solid #2a2a2e; }
+.balance-row { margin-bottom: 10px; }
+.bal-label { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
+.balance-track { height: 4px; background: #0e0e10; border-radius: 2px; overflow: hidden; }
+.balance-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #0e0e10; border-top: 1px solid #2a2a2e; padding: 10px 24px 28px; display: flex; justify-content: space-around; }
+.nav-btn { background: transparent; border: none; cursor: pointer; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: inherit; padding: 4px 20px; color: #444; }
+.nav-btn.active { color: #c8f564; }
+.nav-icon { font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.nav-icon.plus { background: #c8f564; color: #0e0e10; width: 36px; height: 36px; border-radius: 50%; font-size: 22px; font-weight: 700; }
+
+.loading-overlay { display: none; position: fixed; inset: 0; background: rgba(14,14,16,0.85); align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 100; }
+.loading-overlay.show { display: flex; }
+.spinner { width: 44px; height: 44px; border: 3px solid #2a2a2e; border-top-color: #c8f564; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: #888; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Аналізую страву…</div>
+</div>
+
+<div class="header">
+  <div class="logo">
+    <span class="logo-main">їж.</span>
+    <span class="logo-sub">трекер харчування</span>
+  </div>
+  <div class="summary">
+    <div class="ring-wrap">
+      <svg width="68" height="68" viewBox="0 0 68 68">
+        <circle cx="34" cy="34" r="26" fill="none" stroke="#2a2a2e" stroke-width="6"/>
+        <circle id="ring-circle" cx="34" cy="34" r="26" fill="none" stroke="#c8f564" stroke-width="6"
+          stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"/>
+      </svg>
+      <div class="ring-pct" id="ring-pct">0%</div>
+    </div>
+    <div style="flex:1">
+      <div class="kcal-main"><span id="total-kcal">0</span> <span style="font-size:13px;font-weight:400;color:#888">/ 1400 ккал</span></div>
+      <div class="kcal-sub" id="kcal-sub">залишилось 1400 ккал</div>
+      <div class="macros">
+        <div class="macro"><div class="macro-lbl">Б</div><div class="macro-val" style="color:#7dd4e8"><span id="total-p">0</span><span style="font-size:9px;color:#555">/100</span></div></div>
+        <div class="macro"><div class="macro-lbl">Ж</div><div class="macro-val" style="color:#f5a84b"><span id="total-f">0</span><span style="font-size:9px;color:#555">/50</span></div></div>
+        <div class="macro"><div class="macro-lbl">В</div><div class="macro-val" style="color:#c8f564"><span id="total-c">0</span><span style="font-size:9px;color:#555">/140</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab" id="tab-log" onclick="showTab('log')">Журнал</button>
+    <button class="tab active" id="tab-add" onclick="showTab('add')">+ Додати</button>
+  </div>
+</div>
+
+<div class="content">
+  <div id="pane-add">
+    <div class="section-label">Що ти їв/їла?</div>
+
+    <div id="img-preview-wrap" class="img-preview" style="display:none">
+      <img id="img-preview" src="" alt="">
+      <button class="img-remove" onclick="clearImage()">✕</button>
+    </div>
+
+    <textarea id="food-input"
+      placeholder="Опиши страву або рецепт…&#10;&#10;Приклад: гречка 200г + куряча грудка 150г"
+      oninput="updateBtn()"></textarea>
+
+    <div class="btn-row">
+      <button class="btn btn-photo" id="btn-photo" onclick="document.getElementById('file-input').click()">
+        📷 Фото / скрін
+      </button>
+      <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleImage(event)">
+      <button class="btn btn-analyze" id="btn-analyze" onclick="analyze()" disabled>
+        Розрахувати КБЖУ
+      </button>
+    </div>
+
+    <div id="error-box" class="error-box" style="display:none"></div>
+
+    <div class="hints">
+      <div class="section-label">Швидкі варіанти</div>
+      <button class="hint-btn" onclick="setHint(this)">🥣 Гречка відварна 200г + куряча грудка 150г</button>
+      <button class="hint-btn" onclick="setHint(this)">🥞 Вівсяна каша на воді 150г з бананом</button>
+      <button class="hint-btn" onclick="setHint(this)">🍳 Яєчня з 2 яєць + помідор</button>
+      <button class="hint-btn" onclick="setHint(this)">🧀 Сирники з сиру 3 штуки</button>
+      <button class="hint-btn" onclick="setHint(this)">🥗 Салат з тунцем, огірком та оливковою олією</button>
+    </div>
+  </div>
+
+  <div id="pane-log" style="display:none">
+    <div id="log-empty" class="empty">
+      <div style="font-size:48px;margin-bottom:14px">🍽️</div>
+      <div style="font-size:14px;color:#444;line-height:1.6">Ще нічого не додано сьогодні.</div>
+      <button class="empty-cta" onclick="showTab('add')">Додати першу страву →</button>
+    </div>
+    <div id="meals-list"></div>
+    <div id="balance-card" class="balance-card" style="display:none">
+      <div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">Баланс за день</div>
+      <div class="balance-row">
+        <div class="bal-label"><span style="color:#888">Білки</span><span id="bal-p" style="color:#7dd4e8">0г/100г</span></div>
+        <div class="balance-track"><div id="fill-p" class="balance-fill" style="background:#7dd4e8;width:0%"></div></div>
+      </div>
+      <div class="balance-row">
+        <div class="bal-label"><span style="color:#888">Жири</span><span id="bal-f" style="color:#f5a84b">0г/50г</span></div>
+        <div class="balance-track"><div id="fill-f" class="balance-fill" style="background:#f5a84b;width:0%"></div></div>
+      </div>
+      <div class="balance-row">
+        <div class="bal-label"><span style="color:#888">Вуглеводи</span><span id="bal-c" style="color:#c8f564">0г/140г</span></div>
+        <div class="balance-track"><div id="fill-c" class="balance-fill" style="background:#c8f564;width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn" id="nav-log" onclick="showTab('log')">
+    <span class="nav-icon">📋</span><span>Журнал</span>
+  </button>
+  <button class="nav-btn active" id="nav-add" onclick="showTab('add')">
+    <span class="nav-icon plus">＋</span><span>Додати</span>
+  </button>
+</div>
+
+<script>
+const BACKEND = "https://nutrition-backend-tau.vercel.app";
+const GOALS = { calories: 1400, protein: 100, fat: 50, carbs: 140 };
+let meals = [];
+let currentImage = null;
+
+function showTab(tab) {
+  document.getElementById("pane-add").style.display = tab === "add" ? "" : "none";
+  document.getElementById("pane-log").style.display = tab === "log" ? "" : "none";
+  ["add","log"].forEach(t => {
+    document.getElementById("tab-"+t).className = "tab"+(t===tab?" active":"");
+    document.getElementById("nav-"+t).className = "nav-btn"+(t===tab?" active":"");
+  });
+}
+
+function setHint(btn) {
+  document.getElementById("food-input").value = btn.textContent.slice(2);
+  updateBtn();
+}
+
+function updateBtn() {
+  const ok = document.getElementById("food-input").value.trim().length > 0 || currentImage !== null;
+  document.getElementById("btn-analyze").disabled = !ok;
+}
+
+function clearImage() {
+  currentImage = null;
+  document.getElementById("img-preview-wrap").style.display = "none";
+  document.getElementById("file-input").value = "";
+  document.getElementById("btn-photo").textContent = "📷 Фото / скрін";
+  document.getElementById("btn-photo").classList.remove("has-img");
+  updateBtn();
+}
+
+function handleImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  showError("");
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = ev => {
+    img.onload = () => {
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+      currentImage = { data: dataUrl.split(",")[1], type: "image/jpeg" };
+      document.getElementById("img-preview").src = dataUrl;
+      document.getElementById("img-preview-wrap").style.display = "";
+      document.getElementById("btn-photo").textContent = "✅ Фото додано";
+      document.getElementById("btn-photo").classList.add("has-img");
+      updateBtn();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showError(msg) {
+  const el = document.getElementById("error-box");
+  if (msg) { el.textContent = "⚠️ " + msg; el.style.display = ""; }
+  else el.style.display = "none";
+}
+
+async function analyze() {
+  const text = document.getElementById("food-input").value.trim();
+  if (!text && !currentImage) return;
+
+  document.getElementById("loading").classList.add("show");
+  showError("");
+
+  try {
+    const res = await fetch(BACKEND + "/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, image: currentImage }),
+    });
+    const p = await res.json();
+    if (!res.ok || p.error) throw new Error(p.error || "Помилка сервера");
+
+    addMeal({
+      name: p.name || "Страва", emoji: p.emoji || "🍽️",
+      calories: Number(p.calories) || 0, protein: Number(p.protein) || 0,
+      fat: Number(p.fat) || 0, carbs: Number(p.carbs) || 0,
+      portion: p.portion || "", tip: p.tip || "",
+      id: Date.now(),
+      time: new Date().toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" }),
+    });
+
+    document.getElementById("food-input").value = "";
+    clearImage();
+    showTab("log");
+  } catch(e) {
+    showError(e.message);
+  } finally {
+    document.getElementById("loading").classList.remove("show");
+    document.getElementById("btn-analyze").disabled = false;
+    updateBtn();
+  }
+}
+
+function addMeal(m) { meals.push(m); renderMeals(); updateTotals(); }
+function removeMeal(id) { meals = meals.filter(m => m.id !== id); renderMeals(); updateTotals(); }
+
+function renderMeals() {
+  const list = document.getElementById("meals-list");
+  const empty = document.getElementById("log-empty");
+  const balance = document.getElementById("balance-card");
+  if (!meals.length) { empty.style.display = ""; list.innerHTML = ""; balance.style.display = "none"; return; }
+  empty.style.display = "none"; balance.style.display = "";
+  list.innerHTML = meals.map(m => `
+    <div class="meal-card">
+      <button class="meal-remove" onclick="removeMeal(${m.id})">×</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:24px">${m.emoji}</span>
+        <div>
+          <div style="font-size:14px;font-weight:600">${m.name}</div>
+          <div style="font-size:11px;color:#555">${m.time}${m.portion ? " · " + m.portion : ""}</div>
+        </div>
+      </div>
+      <div class="meal-macros">
+        <div class="macro-box"><div class="macro-box-val" style="color:#f0ece4">${Math.round(m.calories)}</div><div class="macro-box-lbl">ккал</div></div>
+        <div class="macro-box"><div class="macro-box-val" style="color:#7dd4e8">${Math.round(m.protein)}г</div><div class="macro-box-lbl">Б</div></div>
+        <div class="macro-box"><div class="macro-box-val" style="color:#f5a84b">${Math.round(m.fat)}г</div><div class="macro-box-lbl">Ж</div></div>
+        <div class="macro-box"><div class="macro-box-val" style="color:#c8f564">${Math.round(m.carbs)}г</div><div class="macro-box-lbl">В</div></div>
+      </div>
+      ${m.tip ? `<div class="meal-tip">💡 ${m.tip}</div>` : ""}
+    </div>`).join("");
+}
+
+function updateTotals() {
+  const t = meals.reduce((a,m) => ({ k: a.k+m.calories, p: a.p+m.protein, f: a.f+m.fat, c: a.c+m.carbs }), { k:0, p:0, f:0, c:0 });
+  const pct = Math.min((t.k / GOALS.calories) * 100, 100);
+  const left = GOALS.calories - t.k;
+  const C = 2 * Math.PI * 26;
+
+  document.getElementById("total-kcal").textContent = Math.round(t.k);
+  document.getElementById("total-p").textContent = Math.round(t.p);
+  document.getElementById("total-f").textContent = Math.round(t.f);
+  document.getElementById("total-c").textContent = Math.round(t.c);
+  document.getElementById("ring-pct").textContent = Math.round(pct) + "%";
+  document.getElementById("ring-pct").style.color = left < 0 ? "#e05a4e" : "#f0ece4";
+  document.getElementById("kcal-sub").textContent = left < 0 ? `перевищено на ${Math.abs(Math.round(left))} ккал` : `залишилось ${Math.round(left)} ккал`;
+  document.getElementById("kcal-sub").style.color = left < 0 ? "#e05a4e" : "#888";
+
+  const circle = document.getElementById("ring-circle");
+  circle.setAttribute("stroke-dashoffset", C * (1 - pct / 100));
+  circle.setAttribute("stroke", left < 0 ? "#e05a4e" : "#c8f564");
+
+  [["p", t.p, GOALS.protein], ["f", t.f, GOALS.fat], ["c", t.c, GOALS.carbs]].forEach(([k, v, g]) => {
+    document.getElementById("bal-" + k).textContent = Math.round(v) + "г/" + g + "г";
+    document.getElementById("fill-" + k).style.width = Math.min((v / g) * 100, 100) + "%";
+  });
+}
+</script>
+</body>
+</html>
