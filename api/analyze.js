@@ -1,3 +1,4 @@
+// їж. v1.0
 const https = require("https");
 
 const SYSTEM = `Ти експерт-дієтолог. Аналізуй їжу, рецепти або зображення і повертай ВИКЛЮЧНО JSON без жодного тексту.
@@ -32,9 +33,17 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") { res.status(200).end(); return; }
+
+  // Health check
+  if (req.method === "GET") {
+    res.status(200).json({ status: "ok", version: "v1.0" });
+    return;
+  }
+
   if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  // Підтримка обох назв змінної
+  const apiKey = process.env.GEMINI_API_KEY || process.env.Gemini_API_Key;
   if (!apiKey) { res.status(500).json({ error: "GEMINI_API_KEY not set" }); return; }
 
   try {
